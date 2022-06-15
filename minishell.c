@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/15 17:30:10 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/15 22:46:22 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -255,26 +255,9 @@ cmd	*execnode(char **s, int *i,char **env)
 	cmdd->infile = getfiles(s, '<');
 	cmdd->outfile = getfiles(s, '>');
 	cmdd->path = get_path(env);
-	//printf("%s\n",env[0]);
-	//printf("infile --> %s\noutfile -->  %s\n", cmdd->infile,cmdd->outfile);
 	cmdd = (execcmd*)redirect_cmd((cmd *)cmdd, s, i);
-	// if (cmdd->infile != NULL)// || cmdd->outfile != NULL)
-	// 	return ((cmd*)redirect_cmd(cmdd, s, i, '<'));
-	// if (cmdd->outfile != NULL)// || cmdd->outfile != NULL)
-	// 	return ((cmd*)redirect_cmd(cmdd, s, i, '>'));
 	return ((cmd*) cmdd);
 }
-
-// cmd	*parce_redir(char **s)
-// {
-// 	cmd		*cmdd;
-// 	redir	*rcmd;
-
-// 	cmdd = execnode(s);
-// 	//--------check
-// 	return (cmdd);
-// }
-
 
 cmd *parce_pipe(char **str, int *i, char **env)
 {
@@ -287,9 +270,6 @@ cmd *parce_pipe(char **str, int *i, char **env)
 	}
 	else
 		cmdd = execnode(parceline(str, i), i, env);
-	// else
-	// 	printf("hiyahadii\n");
-	//printf("%s\n", str[(*i) - 1]);
 	return (cmdd);
 }
 
@@ -322,43 +302,14 @@ void	runcmd(cmd *cmdd)
 		if (pid == 0)
 		{
 			runcmd(pcmd->left);
-			// printf("******************\n");
-			// if (pcmd->left)
-			// {
-			// 	execcmdd = (execcmd *)pcmd->left;
-			// 	printf("lisser ------> awel string %s\n", execcmdd->argv[0]);
-			// 	exit(0);
-			// }
-			// else if (pcmd->left->type == '>')
-			// {
-			// 	execcmdd = (execcmd *)pcmd->right;
-			// 	printf("liMEN ------> awel string %s\n", execcmdd->argv[0]);
-			// }
 		}
 		wait(0);
 		runcmd(pcmd->right);
-		// if (pcmd->right->type == '|')
-		// 	runcmd(pcmd->right);
-		// else if (pcmd->right->type == ' ')
-		// {
-		// 	execcmdd = (execcmd *)pcmd->right;
-		// 	printf("liMEN ------> awel string %s\n", execcmdd->argv[0]);
-		// }
-		// else if (pcmd->right->type == '>')
-		// {
-		// 	execcmdd = (execcmd *)pcmd->right;
-		// 	printf("liMEN ------> awel string %s\n", execcmdd->argv[0]);
-		// }
 	}
 	else if (cmdd->type == ' ')
 	{
 		printf("****  EXEC  ******\n");
-		//printf("type ---> execution\n");
 		execcmdd = (execcmd *)cmdd;
-		//printf("--<%c>\n", execcmdd->type);
-		//printf("--%s\n--%s\n", execcmdd->argv[0], execcmdd->argv[1]);
-		//printf("infile --> %s\noutfile -->  %s\n", execcmdd->infile,execcmdd->outfile);//, execcmdd->argv[1]);
-		//printf("***************\n");
 		int id = fork();
 		if (id == 0)
 		{
@@ -366,7 +317,6 @@ void	runcmd(cmd *cmdd)
 			{
 				str = ft_strjoin(execcmdd->path[i], "/");
 				str = ft_strjoin(str, execcmdd->argv[0]);
-				//printf("%s\n", str);
 				if (access(str, F_OK) != -1)
 					execve(str, execcmdd->argv, NULL);
 				free(str);
@@ -379,11 +329,9 @@ void	runcmd(cmd *cmdd)
 	{
 		printf("****  REDERIC  ******\n");
 		rcmd = (redir *)cmdd;
-		runcmd(rcmd->cmdn);
 		dup2(rcmd->infd, STDIN_FILENO);
 		dup2(rcmd->outfd, STDOUT_FILENO);
-		
-		//printf("---------hadi redir -----> o hadi l type d exec node  \"%c\"\n", rcmd->cmdn->type);
+		runcmd(rcmd->cmdn);
 	}
 }
 
@@ -411,37 +359,13 @@ int main(int argc, char **argv,char **envp)
 				printenv(envp);
 			if (line[0] == 'c' && line[1] == 'd' && line[2] == ' ')
 			{
-				//execve("/bin/cat", S, NULL);
 				chdir(line + 3);
 				continue ;
 			}
 			line = putspace(line);
 			str = ft_split(line, ' ');
 			undo(str);
-			int j=0,p=0;
-
-			 //printf("infile  ==  %s\noutfile   ===  %s\n",getfiles(str, '<', &i), getfiles(str, '>', &i));
-			// S = getfiles(str, '>', &i);
-			// while(str[j])
-			// 	printf("--%s\n",str[j++]);
-			// magic_time(str, &i);
 			runcmd(magic_time(str, &i, envp));
-			// while ((S = parceline(str, &i)) > 0)
-			// {
-			// 	j = 0;
-			// 	while (S[j])
-			// 	{
-			// 		printf("%s\n",S[j]);
-			// 		//printf("%d\n",j);
-			// 		j++;
-			// 	}
-			// 	//printf("_______________%d______________\n",p++);
-			// }
-			
-			//cmd = magic_time(str, &i);
-			//parceline(str, &i);
-			//int	f=parceline(str, &i);
-			
 		}
 	}
 	// system("leaks minishell");
